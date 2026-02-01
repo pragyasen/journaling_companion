@@ -1,0 +1,12 @@
+# Core ML libraries
+transformers>=4.36.0
+torch>=2.2.0
+
+# LLM API
+groq>=0.4.0
+
+# UI
+gradio>=4.0.0
+
+# Utility libraries
+python-dotenv==1.0.0

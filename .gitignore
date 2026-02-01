@@ -1,0 +1,30 @@
+# Environment variables (DO NOT UPLOAD)
+.env
+*.env
+
+# Database (personal data - DO NOT UPLOAD)
+journal_entries.db
+*.db
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Test files (not needed for deployment)
+test_*.py
+
+# Documentation (already in README)
+GROQ_SETUP.md
+SETUP_BERT.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
