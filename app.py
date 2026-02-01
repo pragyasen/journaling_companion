@@ -1859,12 +1859,16 @@ if _google_oauth_available:
             print(f"Login error: {e}")
         return RedirectResponse(url="/")
 
-    app = gr.mount_gradio_app(
-        app, demo, path="/",
-        theme=gr.themes.Soft(),
-        css=custom_css,
-        head=custom_head,
-    )
+    # Gradio 4.44+ accepts theme/css/head on mount_gradio_app; 4.36 does not
+    try:
+        app = gr.mount_gradio_app(
+            app, demo, path="/",
+            theme=gr.themes.Soft(),
+            css=custom_css,
+            head=custom_head,
+        )
+    except TypeError:
+        app = gr.mount_gradio_app(app, demo, path="/")
 else:
     app = demo.app
 
