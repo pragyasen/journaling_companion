@@ -13,7 +13,7 @@ _default_db_path = Path(__file__).parent / "journal_entries.db"
 _db_path = _default_db_path
 _after_commit = None
 
-# Keep for code that references db.DB_PATH (e.g. app.py get_weekly_entries)
+# for code that references db.DB_PATH (e.g. app.py get_weekly_entries)
 DB_PATH = _default_db_path
 
 
@@ -72,10 +72,10 @@ def save_conversation_message(user_message, ai_response, sentiment, sentiment_sc
     conn = sqlite3.connect(_get_db_path())
     cursor = conn.cursor()
     
-    # Get today's date
+    # today's date
     today = datetime.now().date().isoformat()
     
-    # Check if entry exists for today
+    # checking if entry exists for today
     cursor.execute("SELECT id, conversation FROM entries WHERE entry_date = ?", (today,))
     existing = cursor.fetchone()
     
