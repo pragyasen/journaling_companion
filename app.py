@@ -445,9 +445,16 @@ custom_css = """
     transition: all 0.3s ease;
 }
 
-html, body, .gradio-container, #root, main, .app, .contain {
+/* Full viewport background only on html/body – inner containers size to content (fixes HF empty space below) */
+html, body {
     background: #F2ECFF !important;
     min-height: 100vh;
+    font-family: Georgia, 'Times New Roman', serif !important;
+}
+
+.gradio-container, #root, main, .app, .contain {
+    background: #F2ECFF !important;
+    min-height: auto !important;
     font-family: Georgia, 'Times New Roman', serif !important;
 }
 
@@ -1024,6 +1031,11 @@ button[role="tab"][aria-selected="true"] {
 /* Add slide effect on tab change */
 .tabs > div[role="tablist"] + * {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Prevent tab panel / blocks from stretching – content height only (fixes HF empty space below content) */
+.tabs, .tabs [role="tabpanel"], .block {
+    min-height: 0 !important;
 }
 
 .message-user, .message-bot {
