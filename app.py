@@ -6,6 +6,21 @@ Combines BERT analysis with Llama conversational responses
 import os
 import html
 import gradio as gr
+
+# Fix gradio_client bug: get_type(schema) assumes schema is a dict, but JSON Schema
+# can be a bool (true/false). HF Spaces often installs a gradio_client that crashes.
+# We patch it so the app works regardless of Gradio/gradio_client version.
+try:
+    import gradio_client.utils as _gc_utils
+    _original_get_type = _gc_utils.get_type
+    def _patched_get_type(schema):
+        if not isinstance(schema, dict):
+            return "boolean"  # JSON Schema allows true/false; treat as boolean
+        return _original_get_type(schema)
+    _gc_utils.get_type = _patched_get_type
+except Exception:
+    pass  # If patch fails, continue; might be different package structure
+
 from transformers import pipeline
 from groq import Groq
 from dotenv import load_dotenv
