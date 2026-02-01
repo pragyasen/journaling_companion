@@ -143,7 +143,7 @@ Luna’s conversational flow is driven entirely by **prompt engineering** (no fi
 ### 4.3 Limitations
 
 - **Availability**: When running on Hugging Face (free tier), the Space can sleep; first load may be slow. Groq and Hugging Face APIs are subject to rate limits and provider outages.
-- **HF without login**: Data is stored on the Space’s server and may be lost on restart or sleep; it is not “local” to the user’s device. For persistent, user-owned data, sign in with Google (Drive) or run the app locally.
+- **HF without login**: Data is stored on the Space’s server and may be lost on restart or sleep; it's not “local” to the user’s device. For persistent, user-owned data, sign in with Google (Drive) or run the app locally.
 - **Google login (testing)**: The app is still in testing. Google OAuth is not in “production” mode, so sign-in is only allowed for test users added to the Google Cloud Console test list. Until the app is officially verified by Google, other users will not be able to use “Sign in with Google.” Everyone can still use the app without logging in (session/local or HF server storage).
 
 ---
