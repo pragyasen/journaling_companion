@@ -7,9 +7,8 @@ import os
 import html
 import gradio as gr
 
-# Fix gradio_client bug: get_type(schema) assumes schema is a dict, but JSON Schema
-# can be a bool (true/false). HF Spaces often installs a gradio_client that crashes.
-# We patch it so the app works regardless of Gradio/gradio_client version.
+#get_type(schema) assumes schema is a dict, but JSON Schema can be a bool (true/false)
+#app works regardless of Gradio/gradio_client version.
 try:
     import gradio_client.utils as _gc_utils
     _original_get_type = _gc_utils.get_type
@@ -1955,7 +1954,7 @@ if __name__ == "__main__":
     print("="*70)
 
     port = int(os.environ.get("PORT", 7860))
-    # On Hugging Face Spaces (and similar) localhost isn't accessible; share must be True
+    # on Hugging Face Spaces (and similar) localhost isn't accessible; share must be True
     on_spaces = bool(os.environ.get("SPACE_ID"))
     if _google_oauth_available:
         import uvicorn
