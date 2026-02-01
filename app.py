@@ -1038,6 +1038,17 @@ button[role="tab"][aria-selected="true"] {
     min-height: 0 !important;
 }
 
+/* Same for View History and Weekly Wrap tabs – no extra space below content (HF) */
+#history-tab-content, #weekly-wrap-tab-content {
+    flex: 0 0 auto !important;
+    align-self: flex-start !important;
+}
+
+div:has(> #history-tab-content), div:has(> #weekly-wrap-tab-content) {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+}
+
 .message-user, .message-bot {
     color: #ffffff !important;
     padding: 14px 18px !important;
@@ -1713,9 +1724,9 @@ with gr.Blocks(
     <div id="title-header">
     
     # Luna - your new bestie <3
-    ### Your empathetic space for reflection and growth
+    ### Better than just a personal diary.
     
-    Write about your day, thoughts, or feelings. Luna will listen, analyze, and respond with care.
+    Your empathetic space for reflection and growth. Luna will listen, analyze and respond with care.
     
     </div>
     """, elem_id="title-header")
@@ -1848,7 +1859,8 @@ with gr.Blocks(
             history_display = gr.Markdown(
                 value=load_history(),
                 label="Your Entries",
-                elem_classes="history-section"
+                elem_classes="history-section",
+                elem_id="history-tab-content"
             )
             
             # Event handlers for history tab
@@ -1868,7 +1880,8 @@ with gr.Blocks(
             
             weekly_wrap_display = gr.Markdown(
                 value=generate_weekly_wrap(),
-                elem_classes="weekly-wrap-section"
+                elem_classes="weekly-wrap-section",
+                elem_id="weekly-wrap-tab-content"
             )
             
             # Event handler for weekly wrap
