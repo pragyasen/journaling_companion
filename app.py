@@ -4,6 +4,7 @@ Combines BERT analysis with Llama conversational responses
 """
 
 import os
+import html
 import gradio as gr
 from transformers import pipeline
 from groq import Groq
@@ -17,6 +18,44 @@ import json
 
 # Load environment
 load_dotenv()
+
+# Google OAuth (optional): enable with GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
+try:
+    import drive_storage
+    _google_oauth_available = bool(os.getenv("GOOGLE_CLIENT_ID") and os.getenv("GOOGLE_CLIENT_SECRET"))
+except Exception:
+    _google_oauth_available = False
+
+_current_user = {"email": None, "upload_cb": None}
+
+
+def get_redirect_uri():
+    return os.getenv("GOOGLE_REDIRECT_URI") or "http://localhost:7860/login/callback"
+
+
+def get_login_html():
+    """Return HTML for login bar (right split): link or logged-in message."""
+    data_note = " Login is required for data-related features."
+    if not _google_oauth_available:
+        return f'<div id="login-bar" class="login-bar"><span>Sign in not configured.</span>{data_note}</div>'
+    if _current_user["email"]:
+        return f'<div id="login-bar" class="login-bar">Logged in as <strong>{html.escape(_current_user["email"])}</strong> — journal saved to Drive.</div>'
+    try:
+        auth_url = drive_storage.get_auth_url(get_redirect_uri())
+        return f'<div id="login-bar" class="login-bar"><a href="{html.escape(auth_url)}" target="_blank" rel="noopener">Login with Google</a> — save your journal to your Drive.{data_note}</div>'
+    except Exception as e:
+        return f'<div id="login-bar" class="login-bar">Login unavailable: {html.escape(str(e))}.{data_note}</div>'
+
+
+def logout_user():
+    """Clear Google login and switch back to local DB."""
+    global _current_user
+    _current_user["email"] = None
+    _current_user["upload_cb"] = None
+    db.set_db_path(None)
+    db.set_after_commit(None)
+    return get_login_html(), gr.update(visible=False)
+
 
 # Check Groq API key
 groq_api_key = os.getenv("GROQ_API_KEY")
@@ -233,13 +272,11 @@ def format_analysis_display(analysis):
     return display
 
 def format_stats_bar():
-    """Format the stats bar at the top"""
+    """Format the left stats bar only (right bar is login, separate component)."""
     stats = db.get_stats()
     return f"""
-<div id="stats-bar">
-
-**Your Stats:** {stats['total_entries']} days journaled | Last journal date: {stats['last_entry'] or 'Never'}
-
+<div id="stats-bar-left" class="stats-bar-box">
+<strong>Your Stats:</strong> {stats['total_entries']} days journaled | Last journal date: {stats['last_entry'] or 'Never'}
 </div>
 """
 
@@ -258,7 +295,8 @@ def format_stats_sidebar():
 - Secure & private
 
 ### Powered By
-- RoBERTa (Analysis)
+- RoBERTa (Sentiment)
+- BART (Themes)
 - Llama 3.3 (Chat)
 - Whisper v3 (Speech-to-Text)
 """
@@ -463,12 +501,18 @@ body {
 }
 
 #chatbot {
-    height: 600px;
+    height: 320px;
     background: linear-gradient(145deg, #0a1929 0%, #1a2942 100%) !important;
     border: 2px solid #d0b0ff !important;
     border-radius: 20px !important;
     box-shadow: 0 10px 40px rgba(106, 48, 147, 0.3), 
                 inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+/* Chatbot label: light blue background (was bright blue) */
+#chatbot-column label,
+div:has(> #chatbot) > label {
+    background: #cce5ff !important;
+    color: #1a1a2e !important;
 }
 
 #analysis-panel-top {
@@ -958,7 +1002,7 @@ input, textarea {
     border-radius: 24px !important;
     padding: 12px 18px !important;
     -webkit-text-fill-color: #000000 !important;
-    box-shadow: 0 2px 8px rgba(208, 176, 255, 0.2) !important;
+    box-shadow: none !important;
 }
 
 #input-row input, #input-row textarea {
@@ -972,13 +1016,31 @@ input::placeholder, textarea::placeholder {
     opacity: 1 !important;
 }
 
-/* Ensure text is visible when typing */
+/* Focus: keep nice purple outline, no thick glow */
 textarea:focus, input:focus {
     color: #000000 !important;
     -webkit-text-fill-color: #000000 !important;
-    border-color: #9370DB !important;
-    box-shadow: 0 4px 16px rgba(147, 112, 219, 0.4) !important;
+    border: 2px solid #9370DB !important;
+    box-shadow: none !important;
     outline: none !important;
+}
+
+/* Remove the black/dark box around textbox - target wrapper and all container divs, not the input */
+#input-row > *:first-child,
+#input-row > *:first-child div {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+/* Keep the nice 2px purple curved outline on the actual textbox */
+#input-row input,
+#input-row textarea {
+    border: 2px solid #d0b0ff !important;
+    box-shadow: none !important;
+}
+#input-row textarea:focus,
+#input-row input:focus {
+    border: 2px solid #9370DB !important;
 }
 
 button {
@@ -1016,35 +1078,58 @@ button:hover {
     box-shadow: 0 6px 20px rgba(255, 182, 193, 0.6) !important;
 }
 
-/* Microphone audio input styling */
+/* Microphone audio input: only the "Voice Input (Click to record...)" label is light blue */
 #mic-input {
     margin-top: 10px !important;
     border: 2px solid #d0b0ff !important;
     border-radius: 12px !important;
     padding: 15px !important;
-    background: rgba(255, 255, 255, 0.5) !important;
+    background: transparent !important;
+}
+
+/* Hide Gradio's giant music/note icon - keep just the label text and Record button */
+#mic-input svg {
+    display: none !important;
+}
+/* Restore the close (X) icon - it's an SVG inside a button */
+#mic-input button svg {
+    display: inline-block !important;
+    visibility: visible !important;
+}
+
+/* No black borders - use subtle purple everywhere in voice input */
+#mic-input * {
+    border-color: #b8a0e0 !important;
 }
 
 #mic-input label {
-    color: #4a1f6e !important;
+    background: #cce5ff !important;
+    color: #2d3748 !important;
     font-weight: 600 !important;
     margin-bottom: 10px !important;
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+    display: inline-block !important;
 }
 
 #mic-input button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    color: white !important;
-    border: none !important;
+    background: linear-gradient(135deg, #e8e0f5 0%, #d8d0e8 100%) !important;
+    color: #2d3748 !important;
+    border: 1px solid #b8a0e0 !important;
     border-radius: 8px !important;
     padding: 8px 16px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 #mic-input button:hover {
     transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+    box-shadow: 0 4px 14px rgba(147, 112, 219, 0.3) !important;
 }
 
 /* Input row styling - WhatsApp inspired */
@@ -1117,20 +1202,48 @@ button:hover {
     color: #C44FC1 !important;
 }
 
-/* Stats bar styling */
-#stats-bar, #stats-section {
-    background: linear-gradient(135deg, #4a1f6e 0%, #6a3093 100%) !important;
-    padding: 18px 25px !important;
-    border-radius: 15px !important;
-    box-shadow: 0 6px 25px rgba(74, 31, 110, 0.4),
+/* Top bar: stats (fixed size) | login (extends to fill rest) */
+#top-bar-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+}
+#top-bar-row > * {
+    flex: 0 1 auto !important;
+    max-width: 380px !important;
+    min-width: 0 !important;
+}
+#login-bar-wrap {
+    flex: 1 1 auto !important;
+    max-width: none !important;
+    min-width: 220px !important;
+}
+.stats-bar-box, .login-bar, #stats-bar-left-wrap, #login-bar-wrap {
+    background: linear-gradient(135deg, #7a4a9e 0%, #9b6bb8 100%) !important;
+    padding: 12px 18px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 18px rgba(74, 31, 110, 0.35),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-#stats-bar * {
     color: #ffffff !important;
-    font-size: 16px !important;
+    font-size: 14px !important;
 }
+#stats-bar-left-wrap {
+    max-width: 380px !important;
+    width: auto !important;
+    min-width: 200px !important;
+}
+#login-bar-wrap { width: auto !important; }
+#stats-bar-left-wrap *, #login-bar-wrap *, .stats-bar-box *, .login-bar * {
+    color: #ffffff !important;
+}
+.login-bar a {
+    color: #e0c4ff !important;
+    font-weight: 600;
+    text-decoration: underline;
+}
+#logout-btn { margin-left: 8px; }
 
 footer {
     display: none !important;
@@ -1390,12 +1503,8 @@ Found **{len(entries)}** days of entries, but couldn't generate the weekly wrap.
 </div>
 """
 
-# Build Gradio interface
-with gr.Blocks(
-    title="AI Journaling Companion",
-    css=custom_css,
-    theme=gr.themes.Soft(),
-    head="""
+# Lavender look: head HTML (butterflies, ripple, background) — also passed to mount_gradio_app when OAuth is on
+custom_head = """
     <style>
         /* Force lavender background everywhere */
         body, html, .gradio-container, #root, main {
@@ -1493,8 +1602,37 @@ with gr.Blocks(
             initSmoothTabs();
         }
         
+        // Fix Voice Input: Gradio shows two "Stop" buttons; relabel the second one as "Clear"
+        function fixMicInputLabels() {
+            const mic = document.getElementById('mic-input');
+            if (!mic) return;
+            const buttons = mic.querySelectorAll('button');
+            let stopCount = 0;
+            buttons.forEach(btn => {
+                const text = (btn.textContent || '').trim();
+                if (text === 'Stop') {
+                    stopCount++;
+                    if (stopCount === 2) {
+                        btn.textContent = 'Clear';
+                    }
+                }
+            });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => setTimeout(fixMicInputLabels, 800));
+        } else {
+            setTimeout(fixMicInputLabels, 800);
+        }
+        
     </script>
-    """
+"""
+
+# Build Gradio interface
+with gr.Blocks(
+    title="AI Journaling Companion",
+    css=custom_css,
+    theme=gr.themes.Soft(),
+    head=custom_head,
 ) as demo:
     
     gr.Markdown("""
@@ -1514,19 +1652,28 @@ with gr.Blocks(
     with gr.Tabs() as tabs:
         # Define Journal Chat tab
         with gr.TabItem("Journal Chat") as journal_tab:
-            # Stats bar at top (dynamic)
-            stats_bar_display = gr.Markdown(
-                value=format_stats_bar(),
-                elem_id="stats-section"
-            )
-            
+            # Top bar: two physical bars – left = stats, right = login (+ logout when logged in)
+            with gr.Row(elem_id="top-bar-row"):
+                stats_bar_display = gr.Markdown(
+                    value=format_stats_bar(),
+                    elem_id="stats-bar-left-wrap"
+                )
+                with gr.Column(elem_id="login-bar-wrap"):
+                    login_display = gr.HTML(value=get_login_html(), elem_id="login-bar-inner")
+                    logout_btn = gr.Button("Logout", visible=bool(_current_user["email"]), elem_id="logout-btn")
+            logout_btn.click(logout_user, outputs=[login_display, logout_btn])
+
+            def refresh_login():
+                return get_login_html(), gr.update(visible=bool(_current_user["email"]))
+            demo.load(refresh_login, outputs=[login_display, logout_btn])
+
             with gr.Row(elem_id="main-container"):
                 # Left column - Chat
-                with gr.Column(scale=2):
+                with gr.Column(scale=2, elem_id="chatbot-column"):
                     chatbot = gr.Chatbot(
                         elem_id="chatbot",
-                        label="Conversation",
-                        height=600
+                        label="Conversation (Luna's Replies)",
+                        height=320
                     )
                     
                     with gr.Row(elem_id="input-row"):
@@ -1550,10 +1697,9 @@ with gr.Blocks(
                     
                     gr.Markdown("""
                     **Tips:** 
-                    - Share your thoughts freely - this is a judgment-free space
-                    - Be specific about your feelings and experiences
+                    - Share your thoughts freely. This is a judgment-free space :)
                     - No need to worry about grammar or structure
-                    - 🎤 Too tired to type? Use voice input below to record your thoughts!
+                    - 🎤 Too tired to type? Use voice input above to record your thoughts!
                     """, elem_classes="tips-section")
                 
                 # Right column - Analysis
@@ -1673,35 +1819,54 @@ with gr.Blocks(
     color_energetic.click(lambda: save_mood_color_handler('energetic'), outputs=color_status)
     color_anxious.click(lambda: save_mood_color_handler('anxious'), outputs=color_status)
     color_angry.click(lambda: save_mood_color_handler('angry'), outputs=color_status)
-    
-    # Quit button
-    # Uncomment for local development if needed:
-    # quit_status = gr.Markdown("")
-    # quit_btn = gr.Button("Quit App", elem_id="quit-btn", variant="stop")
-    # 
-    # def quit_app():
-    #     def shutdown():
-    #         time.sleep(2)
-    #         os._exit(0)
-    #     threading.Thread(target=shutdown, daemon=True).start()
-    #     return "Luna has shut down successfully"
-    # 
-    # quit_btn.click(quit_app, outputs=quit_status)
+
+# Mount on FastAPI when Google OAuth enabled (so we can handle /login/callback)
+if _google_oauth_available:
+    from fastapi import FastAPI
+    from fastapi.responses import RedirectResponse
+
+    app = FastAPI()
+
+    @app.get("/login/callback")
+    def login_callback(code: str = None):
+        if not code:
+            return RedirectResponse(url="/")
+        try:
+            redirect_uri = get_redirect_uri()
+            creds = drive_storage.exchange_code_for_credentials(code, redirect_uri)
+            local_path, upload_cb = drive_storage.get_or_create_db_file(creds)
+            db.set_db_path(local_path)
+            db.set_after_commit(upload_cb)
+            db.init_database()
+            _current_user["email"] = drive_storage.get_user_email(creds)
+            _current_user["upload_cb"] = upload_cb
+        except Exception as e:
+            print(f"Login error: {e}")
+        return RedirectResponse(url="/")
+
+    app = gr.mount_gradio_app(
+        app, demo, path="/",
+        theme=gr.themes.Soft(),
+        css=custom_css,
+        head=custom_head,
+    )
+else:
+    app = demo.app
 
 # Launch the app
 if __name__ == "__main__":
     print("\n" + "="*70)
     print("Launching Luna (AI Journaling Companion)")
     print("="*70)
-    
-    # Get port from environment (Cloud Run sets this)
-    port = int(os.environ.get("PORT", 8080))
-    
-    # Launch configuration
-    # For local development: Use port 7860
-    # For Cloud Run: Uses PORT environment variable
-    demo.launch(
-        server_name="0.0.0.0",
-        server_port=port,
-        share=False
-    )
+    if _google_oauth_available:
+        print("Google login enabled — sign in to save your journal to Drive.")
+    else:
+        print("Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env to enable login.")
+    print("="*70)
+
+    port = int(os.environ.get("PORT", 7860))
+    if _google_oauth_available:
+        import uvicorn
+        uvicorn.run(app, host="0.0.0.0", port=port)
+    else:
+        demo.launch(server_name="0.0.0.0", server_port=port, share=False)

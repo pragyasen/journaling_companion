@@ -5,8 +5,15 @@ torch>=2.2.0
 # LLM API
 groq>=0.4.0
 
-# UI
-gradio>=4.0.0
+# UI (Gradio 4.x for HF Spaces compatibility)
+gradio>=4.44.0
 
 # Utility libraries
 python-dotenv==1.0.0
+
+# Google OAuth & Drive (login callback server)
+fastapi>=0.100.0
+uvicorn>=0.23.0
+google-auth>=2.23.0
+google-auth-oauthlib>=1.1.0
+google-api-python-client>=2.100.0

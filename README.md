@@ -1,3 +1,14 @@
+---
+title: Luna - Journaling Companion
+emoji: 📔
+colorFrom: purple
+colorTo: indigo
+sdk: gradio
+sdk_version: "4.44.0"
+app_file: app.py
+pinned: false
+---
+
 # Luna - AI-Powered Journaling Companion ✍️
 
 <div align="center">
@@ -139,6 +150,46 @@ python app.py
 ```
 
 The app will be available at `http://localhost:7860`
+
+---
+
+## 🚀 Deploy to Hugging Face Spaces
+
+### 1. Create a Space (if you haven’t already)
+- Go to [huggingface.co/spaces](https://huggingface.co/spaces) → **Create new Space**
+- Choose **Gradio** as SDK, pick a name (e.g. `luna-journal`), set visibility, then create
+
+### 2. Add secrets (required for the app)
+In your Space → **Settings** → **Repository secrets**, add:
+
+| Secret            | Description                          |
+|------------------|--------------------------------------|
+| `GROQ_API_KEY`   | Your Groq API key (required)         |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID (optional)  |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret (optional) |
+| `GOOGLE_REDIRECT_URI` | e.g. `https://YOUR-USERNAME-YOUR-SPACE.hf.space/login/callback` (optional) |
+
+### 3. Push your code
+
+From your project folder (replace `YOUR_HF_USERNAME` and `YOUR_SPACE_NAME` with your Space’s user and repo name):
+
+```bash
+# Add Hugging Face remote (one-time)
+git remote add huggingface https://huggingface.co/spaces/YOUR_HF_USERNAME/YOUR_SPACE_NAME
+
+# Or if the Space already exists and you cloned it, you may already have "origin" pointing to HF.
+# Then push (use main; HF Spaces use main by default)
+git push huggingface main
+```
+
+If your default branch is `master`:
+
+```bash
+git push huggingface master
+```
+
+Your Space will build and then run at  
+`https://huggingface.co/spaces/YOUR_HF_USERNAME/YOUR_SPACE_NAME`.
 
 ---
 

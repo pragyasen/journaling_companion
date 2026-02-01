@@ -1,5 +1,6 @@
 """
-Database module for storing journal entries
+Database module for storing journal entries.
+Supports local file or Google Drive-backed storage (path set at runtime).
 """
 
 import sqlite3
@@ -7,11 +8,44 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent / "journal_entries.db"
+# Default local path; can be overridden for Drive-backed storage
+_default_db_path = Path(__file__).parent / "journal_entries.db"
+_db_path = _default_db_path
+_after_commit = None
+
+# Keep for code that references db.DB_PATH (e.g. app.py get_weekly_entries)
+DB_PATH = _default_db_path
+
+
+def _get_db_path():
+    """Return the current database path (local or Drive-synced temp file)."""
+    return _db_path
+
+
+def set_db_path(path):
+    """Set the database path (e.g. to a temp file synced with Google Drive)."""
+    global _db_path, DB_PATH
+    _db_path = Path(path) if path else _default_db_path
+    DB_PATH = _db_path
+
+
+def set_after_commit(callback):
+    """Set a callback to run after any write (e.g. upload DB to Drive)."""
+    global _after_commit
+    _after_commit = callback
+
+
+def _notify_after_commit():
+    if _after_commit:
+        try:
+            _after_commit()
+        except Exception as e:
+            print(f"⚠️ after_commit callback error: {e}")
+
 
 def init_database():
     """Initialize the database with required tables"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(_get_db_path())
     cursor = conn.cursor()
     
     cursor.execute("""
@@ -32,9 +66,10 @@ def init_database():
     conn.close()
     print("✅ Database initialized")
 
+
 def save_conversation_message(user_message, ai_response, sentiment, sentiment_score, themes):
     """Save or append to today's journal entry"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(_get_db_path())
     cursor = conn.cursor()
     
     # Get today's date
@@ -76,13 +111,15 @@ def save_conversation_message(user_message, ai_response, sentiment, sentiment_sc
         entry_id = cursor.lastrowid
     
     conn.commit()
+    _notify_after_commit()
     conn.close()
     
     return entry_id
 
+
 def get_all_entries(limit=100):
     """Get all journal entries, most recent first"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(_get_db_path())
     cursor = conn.cursor()
     
     cursor.execute("""
@@ -110,7 +147,7 @@ def get_all_entries(limit=100):
 
 def get_entry_by_date(entry_date):
     """Get a specific entry by date"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(_get_db_path())
     cursor = conn.cursor()
     
     cursor.execute("""
@@ -137,7 +174,7 @@ def get_entry_by_date(entry_date):
 
 def get_stats():
     """Get statistics about journal entries"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(_get_db_path())
     cursor = conn.cursor()
     
     # Total days with actual journal entries (not just mood colors)
@@ -170,17 +207,18 @@ def get_stats():
 
 def delete_entry(entry_id):
     """Delete an entry by ID"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(_get_db_path())
     cursor = conn.cursor()
     
     cursor.execute("DELETE FROM entries WHERE id = ?", (entry_id,))
     
     conn.commit()
+    _notify_after_commit()
     conn.close()
 
 def search_entries(search_term):
     """Search entries by text or date"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(_get_db_path())
     cursor = conn.cursor()
     
     cursor.execute("""
@@ -208,7 +246,7 @@ def search_entries(search_term):
 
 def save_mood_color(color):
     """Save or update mood color for today's date"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(_get_db_path())
     cursor = conn.cursor()
     
     # Get today's date
@@ -233,12 +271,14 @@ def save_mood_color(color):
         """, (today, json.dumps([]), color))
     
     conn.commit()
+    _notify_after_commit()
     conn.close()
     return True
 
+
 def get_mood_color_for_today():
     """Get the mood color for today's date"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(_get_db_path())
     cursor = conn.cursor()
     
     today = datetime.now().date().isoformat()
