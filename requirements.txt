@@ -7,8 +7,8 @@ torch>=2.2.0
 # LLM API
 groq>=0.4.0
 
-# UI (Gradio 4.x for HF Spaces compatibility)
-gradio>=4.44.0
+# UI (Gradio 4.36.x avoids gradio_client bool-schema TypeError in get_type)
+gradio>=4.36.0,<4.44.0
 
 # Utility libraries
 python-dotenv==1.0.0
