@@ -306,7 +306,7 @@ def format_stats_sidebar():
 - Negative: {stats['sentiment_counts'].get('NEGATIVE', 0)}
 
 ### Privacy
-- Local database
+- Stores data in your Google Drive
 - Secure & private
 
 ### Powered By
@@ -561,9 +561,11 @@ div:has(> #chatbot) > label {
     border-radius: 20px 20px 0 0;
     padding: 25px;
     color: white;
-    height: 300px;
-    max-height: 300px;
+    height: 300px !important;
+    max-height: 300px !important;
     min-height: 0;
+    flex: 0 0 auto !important;
+    align-self: flex-start !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch;
@@ -571,6 +573,12 @@ div:has(> #chatbot) > label {
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-bottom: none;
+}
+
+/* Prevent Gradio 4.x (HF) from stretching the panel – no extra space below */
+#analysis-panel-top.w-full {
+    flex: 0 0 auto !important;
+    min-height: unset !important;
 }
 
 /* Ensure inner markdown/content wrapper scrolls on Gradio 4.x (HF Spaces) */
