@@ -364,10 +364,38 @@ def transcribe_audio(audio_path):
         print(f"Transcription error: {e}")
         return ""
 
+def _chatbot_history_to_pairs(history):
+    """Convert chatbot history to list-of-pairs format for Gradio 4.x compatibility.
+    Accepts either list of dicts ({'role','content'}) or already list of [user, bot] pairs.
+    """
+    if not history:
+        return []
+    first = history[0]
+    if isinstance(first, dict) and "role" in first:
+        # Gradio 6 / dict format: [{"role":"user","content":"a"}, {"role":"assistant","content":"b"}, ...]
+        pairs = []
+        i = 0
+        while i < len(history):
+            msg = history[i]
+            if isinstance(msg, dict) and msg.get("role") == "user":
+                user_content = msg.get("content") or ""
+                bot_content = ""
+                if i + 1 < len(history) and isinstance(history[i + 1], dict) and history[i + 1].get("role") == "assistant":
+                    bot_content = history[i + 1].get("content") or ""
+                    i += 1
+                pairs.append([user_content, bot_content])
+            i += 1
+        return pairs
+    # Already list of [user, bot] pairs (Gradio 4.x)
+    return list(history)
+
+
 def chat_interface(message, history):
     """Main chat function"""
     if not message.strip():
-        return history, "", load_history(), format_stats_bar(), format_stats_sidebar()
+        # Ensure we return history in list-of-pairs format for Gradio 4.x
+        pairs = _chatbot_history_to_pairs(history) if history else []
+        return pairs, "", load_history(), format_stats_bar(), format_stats_sidebar()
     
     # Analyze the entry
     analysis = analyze_entry(message)
@@ -390,11 +418,9 @@ def chat_interface(message, history):
     # Format analysis display
     analysis_display = format_analysis_display(analysis)
     
-    # Gradio 6.0 format: list of dicts with 'role' and 'content'
-    new_history = history + [
-        {"role": "user", "content": message},
-        {"role": "assistant", "content": ai_response}
-    ]
+    # Gradio 4.x Chatbot expects list of [user_msg, bot_msg] pairs (list of lists/tuples)
+    existing_pairs = _chatbot_history_to_pairs(history) if history else []
+    new_history = existing_pairs + [[message, ai_response]]
     
     # Also refresh the history view and stats
     updated_history_view = load_history()
