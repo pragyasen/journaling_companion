@@ -50,11 +50,11 @@ def get_redirect_uri():
 
 def get_login_html():
     """Return HTML for login bar (right split): link or logged-in message."""
-    data_note = " Login is required for data-related features."
+    data_note = " Login required for full functionality (for data-related features like weekly wrap, history, etc)."
     if not _google_oauth_available:
         return '<div id="login-bar" class="login-bar"><span>Sign in not configured on this demo.</span> Your journal is saved in this session only.</div>'
     if _current_user["email"]:
-        return f'<div id="login-bar" class="login-bar">Logged in as <strong>{html.escape(_current_user["email"])}</strong> — journal saved to Drive.</div>'
+        return f'<div id="login-bar" class="login-bar">Logged in as <strong>{html.escape(_current_user["email"])}</strong> — journal data saved to Drive.</div>'
     try:
         auth_url = drive_storage.get_auth_url(get_redirect_uri())
         return f'<div id="login-bar" class="login-bar"><a href="{html.escape(auth_url)}" target="_blank" rel="noopener">Login with Google</a> — save your journal to your Drive.{data_note}</div>'
@@ -562,11 +562,24 @@ div:has(> #chatbot) > label {
     padding: 25px;
     color: white;
     height: 300px;
-    overflow-y: auto;
+    max-height: 300px;
+    min-height: 0;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
     box-shadow: 0 10px 40px rgba(106, 48, 147, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-bottom: none;
+}
+
+/* Ensure inner markdown/content wrapper scrolls on Gradio 4.x (HF Spaces) */
+#analysis-panel-top .markdown,
+#analysis-panel-top > div {
+    max-height: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    min-height: 0 !important;
 }
 
 #analysis-panel-top *, #analysis-panel-top .markdown *, .analysis-content {
@@ -1751,11 +1764,10 @@ with gr.Blocks(
                         <div class="analysis-content">
                         <div class="analysis-section">
                         <div class="section-header">
-                        <span class="section-icon">✨</span>
+                        <span class="section-icon">🔮</span>
                         <span class="section-title">Analysis Panel</span>
                         </div>
                         <div style="padding: 30px 20px; text-align: center;">
-                        <div style="font-size: 48px; margin-bottom: 15px;">🔮</div>
                         <div style="font-size: 16px; color: rgba(255, 255, 255, 0.9); margin-bottom: 10px;">
                         <strong>Write your first entry to see the magic!</strong>
                         </div>
