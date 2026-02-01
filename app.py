@@ -1865,8 +1865,10 @@ if __name__ == "__main__":
     print("="*70)
 
     port = int(os.environ.get("PORT", 7860))
+    # On Hugging Face Spaces (and similar) localhost isn't accessible; share must be True
+    on_spaces = bool(os.environ.get("SPACE_ID"))
     if _google_oauth_available:
         import uvicorn
         uvicorn.run(app, host="0.0.0.0", port=port)
     else:
-        demo.launch(server_name="0.0.0.0", server_port=port, share=False)
+        demo.launch(server_name="0.0.0.0", server_port=port, share=on_spaces)
