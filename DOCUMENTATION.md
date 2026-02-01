@@ -18,9 +18,9 @@ Luna is an empathetic journaling companion that reduces blank-page anxiety and i
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         Gradio UI (app.py)                        │
-│  Tabs: Journal Chat | View History | Weekly Wrap                   │
-│  Components: Chatbot, Analysis Panel, Mood Palette, Stats         │
+│                         Gradio UI (app.py)                      │
+│  Tabs: Journal Chat | View History | Weekly Wrap                │
+│  Components: Chatbot, Analysis Panel, Mood Palette, Stats       │
 └───────────────────────────────┬─────────────────────────────────┘
                                 │
         ┌───────────────────────┼───────────────────────┐
@@ -28,7 +28,7 @@ Luna is an empathetic journaling companion that reduces blank-page anxiety and i
 ┌───────────────┐       ┌───────────────┐       ┌───────────────┐
 │  database.py  │       │  AI / APIs    │       │ drive_storage │
 │  SQLite CRUD  │       │  Groq, HF     │       │  (optional)   │
-│  entries,     │       │  Llama,       │       │  OAuth +       │
+│  entries,     │       │  Llama,       │       │  OAuth +      │
 │  stats,       │       │  Whisper,     │       │  Drive API    │
 │  weekly wrap  │       │  RoBERTa, BART│       │               │
 └───────────────┘       └───────────────┘       └───────────────┘
@@ -48,10 +48,10 @@ Luna is an empathetic journaling companion that reduces blank-page anxiety and i
 
 ### 1.4 UI/UX Design
 
-- **Theme**: Lavender palette (#F2ECFF, purple gradients), Courgette + Georgia typography, custom CSS.
-- **Layout**: Split view—chat + input on the left; analysis panel, mood palette, and “Powered by” stats on the right.
-- **Tabs**: Journal Chat (main), View History, Weekly Wrap; transitions and layout tuned for both local and Hugging Face (HF) deployment.
-- **Accessibility**: Voice input (Whisper), simple controls, clear labels; layout and scroll behavior fixed for HF (no extra empty space, analysis panel scrollable).
+- **Theme**: Lavender palette, Courgette + Georgia typography, custom CSS
+- **Layout**: Split view - chat + input on the left; analysis panel, mood palette, and “Powered by” stats on the right
+- **Tabs**: Journal Chat (main), View History, Weekly Wrap; transitions and layout tuned for both local and Hugging Face (HF) deployment
+- **Accessibility**: Voice input (Whisper), simple controls, clear labels
 
 ### 1.5 Data Model (Conceptual)
 
@@ -105,26 +105,22 @@ Luna’s conversational flow is driven entirely by **prompt engineering** (no fi
 
 ### 2.4 Dependencies (Summary)
 
-- **ML**: `transformers`, `torch`, `huggingface_hub` (pinned &lt;0.23 for compatibility).
-- **LLM**: `groq`.
-- **UI**: `gradio==4.36.1` (for HF compatibility).
-- **Google**: `google-auth`, `google-auth-oauthlib`, `google-api-python-client`.
-- **App server**: `fastapi`, `uvicorn`.
+- **ML**: `transformers`, `torch`, `huggingface_hub` (pinned &lt;0.23 for compatibility)
+- **LLM**: `groq`
+- **UI**: `gradio==4.36.1` (for HF compatibility)
+- **Google**: `google-auth`, `google-auth-oauthlib`, `google-api-python-client`
+- **App server**: `fastapi`, `uvicorn`
 
 ---
 
 ## 3. Future Enhancements
 
-- **Multi-user / auth**: Proper user accounts and per-user data when not using Google (e.g. email/password or other IdP).
+- **Multi-user / auth**: Proper user accounts and per-user data even when not using Google (e.g. email/password or other IdP).
 - **Export**: Export journal (e.g. PDF) with optional sentiment/theme visualizations.
-- **Mobile**: Native or PWA (e.g. React Native or responsive PWA) for on-the-go journaling.
-- **Habit tracking**: Streaks, reminders, and simple habit metrics tied to journaling.
-- **Prompt library**: Curated or AI-suggested writing prompts by mood/goal.
-- **Data viz**: Charts and trends (sentiment over time, theme distribution, mood calendar).
+- **Mobile**: Mobile application for on-the-go journaling.
 - **Calendar integration**: Optional link to Google Calendar or similar for “journal days” or reminders.
 - **Encrypted backup**: Encrypted cloud backup (e.g. user-owned bucket or Drive folder) with client-side or server-side encryption.
 - **Offline / PWA**: Service worker and local-first behavior so the app works offline and syncs when online.
-- **Local LLM option**: Optional path to run a local model (e.g. Ollama) instead of Groq for users who want no cloud LLM.
 
 ---
 
@@ -152,4 +148,4 @@ Luna’s conversational flow is driven entirely by **prompt engineering** (no fi
 
 ---
 
-*This document summarizes the design, tech stack, main challenges, planned improvements, and responsible-AI stance for Luna. For setup and usage, see [README.md](README.md).*
+*This document summarizes the design, tech stack, main challenges, planned improvements and responsible-AI stance for Luna. For setup and usage, see [README.md](README.md).*
