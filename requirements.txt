@@ -7,8 +7,8 @@ torch>=2.2.0
 # LLM API
 groq>=0.4.0
 
-# UI (Gradio 4.36.x avoids gradio_client bool-schema TypeError in get_type)
-gradio>=4.36.0,<4.44.0
+# UI (Gradio 4.36.1 avoids gradio_client bool-schema TypeError; 4.44+ triggers it)
+gradio==4.36.1
 
 # Utility libraries
 python-dotenv==1.0.0

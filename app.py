@@ -37,7 +37,7 @@ def get_login_html():
     """Return HTML for login bar (right split): link or logged-in message."""
     data_note = " Login is required for data-related features."
     if not _google_oauth_available:
-        return f'<div id="login-bar" class="login-bar"><span>Sign in not configured.</span>{data_note}</div>'
+        return '<div id="login-bar" class="login-bar"><span>Sign in not configured on this demo.</span> Your journal is saved in this session only.</div>'
     if _current_user["email"]:
         return f'<div id="login-bar" class="login-bar">Logged in as <strong>{html.escape(_current_user["email"])}</strong> — journal saved to Drive.</div>'
     try:
