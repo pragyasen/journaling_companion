@@ -1,5 +1,4 @@
 # Core ML libraries
-# Pin huggingface_hub: HfFolder was removed in 0.23+; transformers still imports it
 huggingface_hub>=0.20.0,<0.23.0
 transformers>=4.36.0
 torch>=2.2.0
