@@ -80,7 +80,7 @@ While the mental health benefits of journaling are well-documented, many people 
 
 ## 🎥 Video Demo
 
-> Video demonstration available at: [https://drive.google.com/file/d/1hRYcYVOpQV6rhR5Sbj0yOXuftj3XGs5z/view?usp=sharing]
+> Video demonstration available at: [https://drive.google.com/pragyasen_video](https://drive.google.com/file/d/1hRYcYVOpQV6rhR5Sbj0yOXuftj3XGs5z/view?usp=sharing)
 
 *A 5-7 minute walkthrough showcasing all features, UI/UX design decisions and technical implementation.*
 
