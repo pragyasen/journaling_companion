@@ -15,9 +15,6 @@ __pycache__/
 # Test files (not needed for deployment)
 test_*.py
 
-# Documentation (already in README)
-GROQ_SETUP.md
-SETUP_BERT.md
 
 # IDE
 .vscode/
