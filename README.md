@@ -12,7 +12,7 @@ python_version: "3.12"
 
 **An empathetic, intelligent journaling companion that transforms self-reflection into an insightful daily habit.**
 
-[Live Demo](https://pragyasen1-luna-journal.hf.space) • [Video Walkthrough](#video-demo) • [Documentation](DOCUMENTATION.md)
+[Live Demo](https://pragyasen1-luna-journal.hf.space) • [Video Walkthrough](https://drive.google.com/file/d/1hRYcYVOpQV6rhR5Sbj0yOXuftj3XGs5z/view?usp=sharing) • [Documentation](DOCUMENTATION.md)
 
 </div>
 
