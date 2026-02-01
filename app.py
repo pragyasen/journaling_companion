@@ -1,4 +1,4 @@
-"""
+﻿"""
 AI-Powered Journaling Companion - Gradio Interface
 Combines BERT analysis with Llama conversational responses
 """
