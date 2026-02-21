@@ -18,7 +18,7 @@ python_version: "3.12"
 
 ---
 
-## 🎯 Problem Statement
+## Problem Statement
 
 While the mental health benefits of journaling are well-documented, many people struggle with:
 - **Blank page anxiety** - not knowing what to write
@@ -30,7 +30,7 @@ While the mental health benefits of journaling are well-documented, many people 
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 ### 1. Conversational AI Journaling
 - Dynamic, context-aware prompts using **Llama 3.3 70B**
@@ -78,7 +78,7 @@ While the mental health benefits of journaling are well-documented, many people 
 
 ---
 
-## 🌐 Live Demo
+## Live Demo
 
 **Try it here:** [https://pragyasen1-luna-journal.hf.space/](https://pragyasen1-luna-journal.hf.space/)
 
@@ -86,7 +86,7 @@ While the mental health benefits of journaling are well-documented, many people 
 
 ---
 
-## 🏗️ Architecture & Tech Stack
+## Architecture & Tech Stack
 
 ### AI Models
 - **Llama 3.3 70B Versatile** - Conversational AI and prompt generation
@@ -108,7 +108,7 @@ While the mental health benefits of journaling are well-documented, many people 
 
 ---
 
-## 🚀 Local Setup
+## Local Setup
 
 ### Prerequisites
 - Python 3.10 or higher
@@ -139,7 +139,7 @@ The app will be available at `http://localhost:7860`
 
 ---
 
-## 📖 Usage Guide
+## Usage Guide
 
 ### Basic Journaling Flow
 1. **Start Writing**: Type or speak your thoughts
@@ -158,7 +158,7 @@ The app will be available at `http://localhost:7860`
 
 ---
 
-## 🔬 Technical Implementation Details
+## Technical Implementation Details
 
 ### Prompt Engineering
 The journaling flow is implemented entirely through **prompt engineering** (no fine-tuning):
@@ -188,14 +188,14 @@ entries (
 
 ---
 
-## 📊 Project Statistics
+## Project Statistics
 
 - **AI Models Used**: 4 (Llama, RoBERTa, BART, Whisper)
 - **Features Implemented**: 8 major features
 
 ---
 
-## 🎨 UI/UX Design Decisions
+## UI/UX Design Decisions
 
 1. **Lavender Color Scheme**: Calming, associated with mental wellness (also my favorite color :P)
 2. **Animated Elements**: Subtle butterflies and hearts for positive reinforcement
@@ -205,7 +205,7 @@ entries (
 
 ---
 
-## 🔮 Future Enhancements
+## Future Enhancements
 
 - [ ] Mobile app
 - [ ] Integration with calendar apps
