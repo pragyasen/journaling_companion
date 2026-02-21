@@ -12,7 +12,7 @@ python_version: "3.12"
 
 **An empathetic, intelligent journaling companion that transforms self-reflection into an insightful daily habit.**
 
-[Live Demo](https://pragyasen1-luna-journal.hf.space) • [Video Walkthrough](https://drive.google.com/file/d/1hRYcYVOpQV6rhR5Sbj0yOXuftj3XGs5z/view?usp=sharing) • [Documentation](DOCUMENTATION.md)
+[Live Demo](https://pragyasen1-luna-journal.hf.space) • [Documentation](DOCUMENTATION.md)
 
 </div>
 
@@ -75,14 +75,6 @@ While the mental health benefits of journaling are well-documented, many people 
 - Daily statistics and journaling streaks
 - Sentiment distribution visualization
 - Weekly engagement metrics
-
----
-
-## 🎥 Video Demo
-
-> Video demonstration available at: [https://drive.google.com/pragyasen_video](https://drive.google.com/file/d/1hRYcYVOpQV6rhR5Sbj0yOXuftj3XGs5z/view?usp=sharing)
-
-*A 5-7 minute walkthrough showcasing all features, UI/UX design decisions and technical implementation.*
 
 ---
 
